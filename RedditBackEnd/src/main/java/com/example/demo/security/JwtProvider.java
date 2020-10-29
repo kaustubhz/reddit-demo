@@ -18,12 +18,16 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.SpringRedditException;
 
+import io.jsonwebtoken.Claims;
+
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class JwtProvider {
 
-//	This class represents a storage facility for cryptographickeys and certificates. 
+//	This class represents a storage facility for cryptographic keys and certificates. 
 	private KeyStore keyStore;
 
 	@PostConstruct
@@ -63,27 +67,49 @@ public class JwtProvider {
 		return null;
 	}
 
-	public void validateToken(String jwtToken) {
-		Jwts.parser().setSigningKey(getPublicKey());
+	public boolean validateToken(String jwtToken) {
+		/*
+		 * Parses the specified compact serialized JWT string based on the builder's
+		 * current configuration state and returns the resulting unsigned plain text JWT
+		 * instance.
+		 */
+		Jwts.parserBuilder().setSigningKey(getPublicKey()).build().parseClaimsJws(jwtToken);
+//		Jwts.parser().setSigningKey(getPublicKey()).parseClaimsJws(jwtToken);
+		return true;
 	}
 
-	
 	/*
-	 * java.security.PublicKey
-	 * This interface contains no methods or constants. 
-	 * merely serves to group (and provide type safety for) all public key interfaces. 
+	 * java.security.PublicKey This interface contains no methods or constants.
+	 * merely serves to group (and provide type safety for) all public key
+	 * interfaces.
 	 */
 
 	private PublicKey getPublicKey() {
 		try {
 //			Returns the certificate associated with the given alias. Here springblog
-			
+
 			return keyStore.getCertificate("springblog").getPublicKey();
-		}
-		catch (KeyStoreException e) {
+		} catch (KeyStoreException e) {
 			throw new SpringRedditException("Exception occured while retrieving public key");
 		}
 
+	}
+
+//	As we signed jwt with the username in it, we need to extract username from it
+//	in order to validate jwt token
+	public String getUsernameFromJwt(String token) {
+
+		/*
+		 * parseClaimsJws() => Parses the specified compact serialized JWT string based
+		 * on the builder's current configuration state and returns the resulting
+		 * unsigned plain text JWT instance.
+		 */
+		log.info("Inside getUsernameFromJwt() method");
+		Claims claims = Jwts.parserBuilder().setSigningKey(getPublicKey()).build().parseClaimsJws(token).getBody();
+//		Claims claims = Jwts.parser().setSigningKey(getPublicKey()).parseClaimsJws(token).getBody();
+
+		log.info(claims.getSubject());
+		return claims.getSubject();
 	}
 
 }
