@@ -29,12 +29,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String userName) {
 
-		log.info("Inside loadUserByUsername {}",userName);
+		log.info("Inside loadUserByUsername {}", userName);
 
-		Optional<User> userOptional = repository.findByUserName(userName);
+		Optional<User> userOptional = repository.findByUsername(userName);
 		User user = userOptional
 				.orElseThrow(() -> new UsernameNotFoundException("No user found" + " with the username " + userName));
-		return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getUserPassword(),
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
 				user.isEnabled(), true, true, true, getAuthorities("USER"));
 	}
 

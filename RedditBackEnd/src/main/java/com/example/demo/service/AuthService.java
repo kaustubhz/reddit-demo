@@ -4,15 +4,15 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.AuthenticationResponse;
 import com.example.demo.dto.LoginRequest;
@@ -50,17 +50,18 @@ public class AuthService {
 	public void signup(RegisterRequest registerRequest) {
 		User user = new User();
 
-		user.setUserName(registerRequest.getUserName());
+		user.setUsername(registerRequest.getUserName());
 //		This will encode password
-		user.setUserPassword(passwordEncoder.encode(registerRequest.getUserPassword()));
-		user.setUserEmail(registerRequest.getUserEmail());
+		user.setPassword(passwordEncoder.encode(registerRequest.getUserPassword()));
+		user.setEmail(registerRequest.getUserEmail());
 		user.setCreated(Instant.now());
 		user.setEnabled(false);
 
 		userRepo.save(user);
 		String token = generateVerificationToken(user);
-		mailService.sendMail(new NotificationEmail("Please activate your account ", user.getUserEmail(),
-				" Thank you for registering to Spring reddit " + " Please click on the below url to activate your account"
+		mailService.sendMail(new NotificationEmail("Please activate your account ", user.getEmail(),
+				" Thank you for registering to Spring reddit "
+						+ " Please click on the below url to activate your account"
 						+ " http://localhost:8080/api/auth/accountVerification/" + token));
 	}
 
@@ -97,11 +98,22 @@ public class AuthService {
 	@Transactional
 	private void fetchUserAndEnable(VerificationToken verificationToken) {
 
-		String userName = verificationToken.getUser().getUserName();
-		User user = userRepo.findByUserName(userName)
+		String userName = verificationToken.getUser().getUsername();
+		User user = userRepo.findByUsername(userName)
 				.orElseThrow(() -> new SpringRedditException("No such user found with username" + userName));
 		user.setEnabled(true);
 		userRepo.save(user);
+	}
+
+	@Transactional(readOnly = true)
+	public User getCurrentUser() {
+//		Here, getAuthentication() extracts an authentication request token. 
+		org.springframework.security.core.userdetails.User principle = (org.springframework.security.core.userdetails.User) SecurityContextHolder
+				.getContext().getAuthentication().getPrincipal();
+
+//		UsernameNotFoundException is built in exception
+		return userRepo.findByUsername(principle.getUsername())
+				.orElseThrow(() -> new UsernameNotFoundException("Username not found " + principle.getUsername()));
 	}
 
 }
