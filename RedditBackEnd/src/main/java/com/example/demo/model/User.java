@@ -24,13 +24,13 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long userId;
+	private Long userId;
 
-	private String userName;
+	private String username;
 
-	private String userPassword;
+	private String password;
 
-	private String userEmail;
+	private String email;
 
 	private Instant created;
 

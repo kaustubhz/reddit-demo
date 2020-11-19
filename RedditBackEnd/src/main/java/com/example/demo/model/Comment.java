@@ -27,9 +27,9 @@ public class Comment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long commentId;
+	private long id;
 
-	private String commentText;
+	private String text;
 
 	private Instant createdDate;
 
