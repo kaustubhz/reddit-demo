@@ -9,9 +9,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.time.Instant;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,12 @@ public class JwtProvider {
 
 //	This class represents a storage facility for cryptographic keys and certificates. 
 	private KeyStore keyStore;
+//	New field for JWT expiration time
+
+//	The following field is required for determining the validity of JWT token
+//	In this case, it is 9 min i.e 900000 ms
+	@Value("${jwt.expiration.time}")
+	private Long jwtExpirationInMillis;
 
 	@PostConstruct
 	public void init() {
@@ -54,7 +63,9 @@ public class JwtProvider {
 //		Jwts is a Factory class useful for creating instances of JWT interfaces. 
 //Using this factory class can be a good alternative to tightly coupling your code to implementation classes.
 
-		return Jwts.builder().setSubject(principle.getUsername()).signWith(getPrivateKey()).compact();
+//		Here, setExpiration() method will take parameter as date in which we use Instant class as parameter
+		return Jwts.builder().setSubject(principle.getUsername()).signWith(getPrivateKey())
+				.setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis))).compact();
 	}
 
 	private PrivateKey getPrivateKey() {
@@ -110,6 +121,10 @@ public class JwtProvider {
 
 		log.info(claims.getSubject());
 		return claims.getSubject();
+	}
+
+	public Long getJwtExpirationInMillis() {
+		return jwtExpirationInMillis;
 	}
 
 }

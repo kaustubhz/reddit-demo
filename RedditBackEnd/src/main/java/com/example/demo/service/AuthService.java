@@ -73,7 +73,13 @@ public class AuthService {
 
 		String token = jwtProvider.generateToken(authentication);
 
-		return new AuthenticationResponse(token, loginRequest.getUserName());
+//		return new AuthenticationResponse(token, loginRequest.getUserName());
+		/*
+		 * Here, we're using builder pattern refreshtoken does not take any arguments
+		 * expiresAt will tell us time in which token gets expired, here 9 minutes
+		 */ return AuthenticationResponse.builder().authenticationToken(token).refreshToken("")
+				.expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+				.username(loginRequest.getUserName()).build();
 	}
 
 	private String generateVerificationToken(User user) {
