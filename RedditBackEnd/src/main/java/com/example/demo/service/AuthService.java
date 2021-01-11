@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.AuthenticationResponse;
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.RefreshTokenRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.exception.SpringRedditException;
 import com.example.demo.model.NotificationEmail;
@@ -44,6 +44,9 @@ public class AuthService {
 
 //	from security package
 	private final JwtProvider jwtProvider;
+
+//	To refresh JWT after expiration times
+	private final RefreshTokenService refreshTokenService;
 
 //	As we interact with Relational DB, @Transactional is used
 	@Transactional
@@ -75,9 +78,11 @@ public class AuthService {
 
 //		return new AuthenticationResponse(token, loginRequest.getUserName());
 		/*
-		 * Here, we're using builder pattern refreshtoken does not take any arguments
-		 * expiresAt will tell us time in which token gets expired, here 9 minutes
-		 */ return AuthenticationResponse.builder().authenticationToken(token).refreshToken("")
+		 * Here, we're using builder pattern refresh token does not take any arguments
+		 * expiresAt will tell us time in which token gets expired, here 15 minutes In
+		 * refreshToken(), we'll generate random refresh token
+		 */ return AuthenticationResponse.builder().authenticationToken(token)
+				.refreshToken(refreshTokenService.generateRefreshToken().getToken())
 				.expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
 				.username(loginRequest.getUserName()).build();
 	}
@@ -120,6 +125,15 @@ public class AuthService {
 //		UsernameNotFoundException is built in exception
 		return userRepo.findByUsername(principle.getUsername())
 				.orElseThrow(() -> new UsernameNotFoundException("Username not found " + principle.getUsername()));
+	}
+
+	public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+		refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+		String jwtToken = jwtProvider.generateTokenWithUsername(refreshTokenRequest.getUsername());
+		return AuthenticationResponse.builder().authenticationToken(jwtToken)
+				.refreshToken(refreshTokenRequest.getRefreshToken())
+				.expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+				.username(refreshTokenRequest.getUsername()).build();
 	}
 
 }

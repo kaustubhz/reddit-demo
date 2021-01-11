@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.example.demo.exception.SpringRedditException;
 import com.example.demo.model.NotificationEmail;
 
-import javassist.bytecode.stackmap.BasicBlock.Catch;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
