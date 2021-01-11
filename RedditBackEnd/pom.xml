@@ -125,6 +125,22 @@
 			<version>${kotlin.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- The following 2 dependencies were causing a compile error in SwaggerConfig 
+			class Hence it's commented and new starter dependency is added -->
+		<!-- Spring fox dependencies -->
+		<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
+		<!-- <dependency> <groupId>io.springfox</groupId> <artifactId>springfox-swagger-ui</artifactId> 
+			<version>3.0.0</version> </dependency> https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 
+			<dependency> <groupId>io.springfox</groupId> <artifactId>springfox-swagger2</artifactId> 
+			<version>2.9.2</version> </dependency> -->
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
@@ -136,7 +152,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
 				<configuration>
 					<source>1.8</source> <!-- depending on your project -->
 					<target>1.8</target> <!-- depending on your project -->
