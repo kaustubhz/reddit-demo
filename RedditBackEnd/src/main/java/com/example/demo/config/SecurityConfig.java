@@ -1,6 +1,5 @@
 package com.example.demo.config;
 
-import java.security.PublicKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.demo.security.JwtAuthFilter;
 
-import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +39,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests().antMatchers("/api/auth/**").permitAll()
-				.antMatchers(HttpMethod.GET, "/api/reddit").permitAll().anyRequest().authenticated();
+				.antMatchers(HttpMethod.GET, "/api/reddit").permitAll().antMatchers("/v2/api/docs", "/configuration/ui",
+						"/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/webjars/**")
+				.permitAll().anyRequest().authenticated();
 		log.info("Inside configure");
 		http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 	}
