@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.AuthenticationResponse;
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.RefreshTokenRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.service.AuthService;
+import com.example.demo.service.RefreshTokenService;
 
 import lombok.AllArgsConstructor;
 
@@ -22,6 +24,7 @@ import lombok.AllArgsConstructor;
 public class AuthController {
 
 	private final AuthService authService;
+	private final RefreshTokenService refreshTokenService;
 
 	@PostMapping("/signup")
 	public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
@@ -37,7 +40,18 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
-		
+
 		return authService.login(loginRequest);
+	}
+
+	@PostMapping("/refresh/token")
+	public AuthenticationResponse refreshTokens(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+		return authService.refreshToken(refreshTokenRequest);
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+		refreshTokenService.deleteToken(refreshTokenRequest.getRefreshToken());
+		return ResponseEntity.status(HttpStatus.OK).body("Refresh token deleted successfully!!!");
 	}
 }
