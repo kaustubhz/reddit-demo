@@ -35,7 +35,7 @@ public class JwtProvider {
 //	New field for JWT expiration time
 
 //	The following field is required for determining the validity of JWT token
-//	In this case, it is 9 min i.e 900000 ms
+//	In this case, it is 15 min i.e 900000 ms
 	@Value("${jwt.expiration.time}")
 	private Long jwtExpirationInMillis;
 
@@ -65,6 +65,11 @@ public class JwtProvider {
 
 //		Here, setExpiration() method will take parameter as date in which we use Instant class as parameter
 		return Jwts.builder().setSubject(principle.getUsername()).signWith(getPrivateKey())
+				.setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis))).compact();
+	}
+
+	public String generateTokenWithUsername(String username) {
+		return Jwts.builder().setSubject(username).signWith(getPrivateKey())
 				.setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis))).compact();
 	}
 
