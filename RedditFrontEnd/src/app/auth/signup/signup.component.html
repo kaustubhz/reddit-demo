@@ -1,0 +1,52 @@
+<div class="register-section">
+  <div class="row justify-content-center">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header" style="text-align: center">
+          <h4>Register</h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="signupForm" (ngSubmit)="signup()">
+            <div class="form-group row">
+              <label for="email_address" class="col-md-4 col-sm-12 col-form-label text-md-right">E-mail Address</label>
+              <div class="col-md-6 col-sm-12">
+                <input type="text" [formControlName]="'email'" id="email_address" class="form-control"
+                  placeholder="eg. someone@example.com" required autofocus>
+                <span *ngIf="!signupForm.get('email').valid && signupForm.get('email').touched">
+                  Please provide an email
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="user_name" class="col-md-4 col-sm-12 col-form-label text-md-right">Username</label>
+              <div class="col-md-6 col-sm-12">
+                <input type="text" [formControlName]="'username'" id="username" class="form-control" required>
+                <span *ngIf="!signupForm.get('username').valid && signupForm.get('username').touched">
+                  Please provide an username
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="user_pass" class="col-md-4 col-sm-12 col-form-label text-md-right">Password</label>
+              <div class="col-md-6 col-sm-12">
+                <input type="password" [formControlName]="'password'" name="password" id="password" class="form-control"
+                  required>
+                <span *ngIf="!signupForm.get('password').valid && signupForm.get('password').touched">
+                  Please provide password
+                </span>
+              </div>
+            </div>
+
+            <span class="col-md-6 offset-md-4">
+              <button type="submit" class="sign-up">Sign up</button>
+              <span style="padding-left: 15px;">Existing user? <a routerLink="/login">Login</a> </span>
+            </span>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
